@@ -1,200 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Pixel Goal Game</title>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Pixel Unlock Game</title>
 <style>
-  body {
-    margin: 0;
-    height: 100vh;
-    background: #0b1020;
-    font-family: "Courier New", monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #e5e7eb;
+  body { 
+    margin:0; 
+    height:100vh; 
+    background:#0b1020; 
+    font-family:'Courier New', monospace; 
+    display:flex; 
+    justify-content:center; 
+    align-items:center; 
+    color:#e5e7eb; 
   }
-
-  .game {
-    width: 320px;
-    background: #111827;
-    border: 4px solid #38bdf8;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 0 0 4px #000;
+  .game { 
+    width:280px; 
+    background:#111827; 
+    border:4px solid #38bdf8; 
+    padding:20px; 
+    text-align:center; 
+    box-shadow:0 0 0 4px #000; 
   }
-
-  h1 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
+  h1 { 
+    font-size:18px; 
+    margin-bottom:10px; 
+    letter-spacing:1px; 
   }
-
-  /* ===== PIXEL CHARACTER ===== */
-  .character {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 12px;
-    image-rendering: pixelated;
-    animation: idle 1.4s steps(2) infinite;
+  p { 
+    font-size:12px; 
+    margin:6px 0; 
   }
-
-  .pixel {
-    width: 8px;
-    height: 8px;
-    float: left;
+  .pixel-btn { 
+    margin-top:20px; 
+    padding:16px; 
+    background:#22c55e; 
+    color:#022c22; 
+    border:none; 
+    font-size:14px; 
+    cursor:pointer; 
+    width:100%; 
+    font-family:inherit; 
+    box-shadow:4px 4px 0 #000, -4px -4px 0 #16a34a; 
+    animation:pulse 1.5s infinite; 
   }
-
-  @keyframes idle {
-    0% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-    100% { transform: translateY(0); }
+  .pixel-btn:active { 
+    transform:translate(4px,4px); 
+    box-shadow:0 0 0 #000,0 0 0 #16a34a; 
   }
-
-  /* ===== GAME UI ===== */
-  .counter {
-    font-size: 12px;
-    margin-bottom: 8px;
+  .bar { 
+    margin-top:15px; 
+    height:12px; 
+    background:#020617; 
+    border:2px solid #38bdf8; 
   }
-
-  .goal {
-    height: 14px;
-    background: #020617;
-    border: 2px solid #22c55e;
-    margin-bottom: 12px;
+  .fill { 
+    height:100%; 
+    width:0%; 
+    background:#38bdf8; 
+    transition:width 0.3s steps(5); 
   }
-
-  .fill {
-    height: 100%;
-    width: 0%;
-    background: #22c55e;
-    transition: width 0.3s steps(5);
+  .message { 
+    display:none; 
+    margin-top:20px; 
+    font-size:14px; 
+    animation:pop 0.6s steps(3); 
+    color:#a5f3fc; 
   }
-
-  .pixel-btn {
-    padding: 14px;
-    background: #38bdf8;
-    color: #022c22;
-    border: none;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-    box-shadow: 4px 4px 0 #000, -4px -4px 0 #0ea5e9;
-    animation: pulse 1.4s infinite;
+  #resetBtn { 
+    display:none; 
+    margin-top:10px; 
+    padding:12px; 
+    width:100%; 
+    font-size:14px; 
+    background:#facc15; 
+    color:#333; 
+    border:none; 
+    cursor:pointer; 
+    font-family:inherit; 
+    box-shadow:4px 4px 0 #000, -4px -4px 0 #eab308; 
   }
-
-  .pixel-btn:active {
-    transform: translate(4px, 4px);
-    box-shadow: 0 0 0 #000;
+  #resetBtn:active {
+    transform:translate(4px,4px); 
+    box-shadow:0 0 0 #000,0 0 0 #eab308; 
   }
-
-  @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-  }
-
-  .message {
-    display: none;
-    margin-top: 16px;
-    font-size: 14px;
-    color: #a5f3fc;
-    animation: pop 0.6s steps(3);
-  }
-
-  @keyframes pop {
-    0% { transform: scale(0); }
-    80% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-  }
-
-  .clear { clear: both; }
+  @keyframes pulse {0% {transform:scale(1);} 50% {transform:scale(1.05);} 100% {transform:scale(1);}}
+  @keyframes pop {0% {transform:scale(0);} 80% {transform:scale(1.2);} 100% {transform:scale(1);}}
+  .shake { animation:shake 0.3s steps(2); }
+  @keyframes shake {0% {transform:translate(0);} 25% {transform:translate(-2px,2px);} 50% {transform:translate(2px,-2px);} 75% {transform:translate(-2px,-2px);} 100% {transform:translate(0);}}
 </style>
 </head>
-
 <body>
-<div class="game">
-  <h1>SCORE 5 GOALS ⚽</h1>
-
-  <!-- PIXEL BOY CHARACTER -->
-  <div class="character">
-    <!-- Hair -->
-    <div class="pixel" style="background:#1f2937"></div>
-    <div class="pixel" style="background:#1f2937"></div>
-    <div class="pixel" style="background:#1f2937"></div>
-    <div class="pixel" style="background:#1f2937"></div>
-    <div class="pixel" style="background:#1f2937"></div>
-    <div class="pixel" style="background:#1f2937"></div>
-    <div class="pixel" style="background:#1f2937"></div>
-    <div class="pixel" style="background:#1f2937"></div>
-
-    <!-- Face -->
-    <div class="pixel" style="background:#fcd7b6"></div>
-    <div class="pixel" style="background:#fcd7b6"></div>
-    <div class="pixel" style="background:#000"></div>
-    <div class="pixel" style="background:#fcd7b6"></div>
-    <div class="pixel" style="background:#fcd7b6"></div>
-    <div class="pixel" style="background:#000"></div>
-    <div class="pixel" style="background:#fcd7b6"></div>
-    <div class="pixel" style="background:#fcd7b6"></div>
-
-    <!-- Shirt -->
-    <div class="pixel" style="background:#38bdf8"></div>
-    <div class="pixel" style="background:#38bdf8"></div>
-    <div class="pixel" style="background:#38bdf8"></div>
-    <div class="pixel" style="background:#38bdf8"></div>
-    <div class="pixel" style="background:#38bdf8"></div>
-    <div class="pixel" style="background:#38bdf8"></div>
-    <div class="pixel" style="background:#38bdf8"></div>
-    <div class="pixel" style="background:#38bdf8"></div>
-
-    <!-- Legs -->
-    <div class="pixel" style="background:#020617"></div>
-    <div class="pixel" style="background:#020617"></div>
-    <div class="pixel" style="background:#020617"></div>
-    <div class="pixel" style="background:#020617"></div>
-    <div class="pixel" style="background:#020617"></div>
-    <div class="pixel" style="background:#020617"></div>
-    <div class="pixel" style="background:#020617"></div>
-    <div class="pixel" style="background:#020617"></div>
-
-    <div class="clear"></div>
-  </div>
-
-  <div class="counter" id="counter">Goals: 0 / 5</div>
-
-  <div class="goal">
-    <div class="fill" id="fill"></div>
-  </div>
-
-  <button class="pixel-btn" onclick="kick()">KICK!</button>
-
+<div class="game" id="game">
+  <h1>PIXEL UNLOCK</h1>
+  <p>Tap the button 5 times</p>
+  <button class="pixel-btn" id="tapBtn">TAP</button>
+  <div class="bar"><div class="fill" id="fill"></div></div>
   <div class="message" id="message">
-    <strong>
-      Btw, I was joking about the palmistry thing ;p  
-      <br>It’s just fun!
-    </strong>
+    <strong>Btw was just joking about the palmistry thing, it's just fun LOL ;p</strong>
   </div>
+  <button id="resetBtn" onclick="resetGame()">RESET</button>
+  <!-- Audio for tap sound -->
+  <audio id="tapSound" src="https://freesound.org/data/previews/256/256113_3263906-lq.mp3"></audio>
 </div>
 
 <script>
-  let goals = 0;
-  const maxGoals = 5;
+  let taps = 0;
+  const maxTaps = 5;
+  const fill = document.getElementById("fill");
+  const message = document.getElementById("message");
+  const tapBtn = document.getElementById("tapBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const game = document.getElementById("game");
+  const tapSound = document.getElementById("tapSound");
 
-  function kick() {
-    goals++;
-    document.getElementById("counter").innerText =
-      `Goals: ${goals} / ${maxGoals}`;
-    document.getElementById("fill").style.width =
-      (goals / maxGoals) * 100 + "%";
+  function tap() {
+    if (taps >= maxTaps) return; // prevent extra taps
+    taps++;
 
-    if (goals >= maxGoals) {
-      document.querySelector(".pixel-btn").style.display = "none";
-      document.getElementById("message").style.display = "block";
+    // Play sound
+    tapSound.currentTime = 0; // rewind to start
+    tapSound.play();
+
+    const percent = (taps / maxTaps) * 100;
+    fill.style.width = percent + "%";
+
+    // Shake effect
+    game.classList.add("shake");
+    setTimeout(() => game.classList.remove("shake"), 300);
+
+    // Show message when completed
+    if(taps >= maxTaps){
+      tapBtn.style.display="none";
+      setTimeout(() => {
+        message.style.display="block";
+        resetBtn.style.display="block";
+      }, 200);
     }
   }
+
+  function resetGame() {
+    taps = 0;
+    fill.style.width = "0%";
+    message.style.display = "none";
+    tapBtn.style.display = "block";
+    resetBtn.style.display = "none";
+  }
+
+  tapBtn.addEventListener("click", tap);
 </script>
 </body>
 </html>
