@@ -1,374 +1,314 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Founder Frenzy - Pixel Style</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Shayan's Work Life</title>
+
 <style>
 body {
-  margin:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  background:#000;
-  font-family:'Courier New', monospace;
+  margin: 0;
+  overflow: hidden;
+  background: #111;
+  font-family: monospace;
 }
 
-.game {
-  width:360px;
-  height:640px;
-  position:relative;
-  overflow:hidden;
-  image-rendering:pixelated;
-  background:#000;
-  border:4px solid #fff;
-  background-image: url('images/background.png'); /* pixelated background */
-  background-size: cover;
-  background-repeat: no-repeat;
+canvas {
+  display: block;
+  background: #1e1e1e;
 }
 
-/* HERO */
-.hero {
-  width:48px;
-  height:48px;
-  position:absolute;
-  bottom:50px;
-  left:156px;
-  z-index:3;
-  image-rendering:pixelated;
+/* SCREENS */
+#startScreen, #endScreen {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  z-index: 10;
 }
 
-/* Horizontal bars */
-.bar {
-  position:absolute;
-  height:12px;
-  width:140px;
-  text-align:center;
-  font-size:8px;
-  font-family:'Courier New', monospace;
-  line-height:12px;
-  color:#fff;
-  z-index:2;
-  border:1px solid #000;
-  image-rendering:pixelated;
-  border-radius:2px;
+/* HUD */
+#overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: none;
+  justify-content: space-between;
+  color: white;
+  font-size: 14px;
+  z-index: 5;
 }
 
-/* Treasure $ */
-.treasure {
-  position:absolute;
-  top:10px;
-  right:10px;
-  font-size:28px;
-  color:#0f0;
-  z-index:5;
-  font-family:'Courier New', monospace;
+#stress {
+  width: 120px;
+  height: 10px;
+  border: 1px solid white;
 }
 
-/* Stress bar */
-.stress-bar {
-  position:absolute;
-  top:10px;
-  left:10px;
-  width:120px;
-  height:12px;
-  background:#222;
-  border:1px solid #fff;
-  z-index:5;
-}
-.stress-fill {
-  height:100%;
-  width:0%;
-  background:#ef4444;
+#stressFill {
+  height: 100%;
+  width: 0%;
+  background: red;
 }
 
-/* Dollar flying sign */
-.dollar {
-  position:absolute;
-  font-size:16px;
-  font-weight:bold;
-  color:#0f0;
-  z-index:4;
-  pointer-events:none;
-  image-rendering:pixelated;
-}
-
-/* Welcome overlay */
-.welcome {
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,0.8);
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  color:#fff;
-  font-size:18px;
-  text-align:center;
-  z-index:6;
-}
-.start-btn {
-  margin-top:15px;
-  padding:8px 16px;
-  font-size:14px;
-  cursor:pointer;
-  background:#22c55e;
-  border:none;
-  color:#022c22;
-  font-family:inherit;
-}
-
-/* Summary / End screen */
-.summary {
-  position:absolute;
-  inset:0;
-  background: rgba(0,0,0,0.85);
-  color:#fff;
-  display:none;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  font-size:12px;
-  text-align:center;
-  z-index:6;
-  padding:10px;
-}
-
-.reply-btn {
-  margin-top:10px;
-  padding:6px 12px;
-  font-size:14px;
-  cursor:pointer;
-  background:#38bdf8;
-  color:#000;
-  border:none;
-  font-family:inherit;
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-family: monospace;
 }
 </style>
 </head>
+
 <body>
 
-<div class="game" id="game">
-  <img src="images/hero.png" class="hero" id="hero">
+<!-- START -->
+<div id="startScreen">
+  <h1>LET’S PLAY</h1>
+  <h2>Shayan’s Work Life</h2>
+  <p>Tap anywhere to start</p>
+</div>
 
-  <!-- Big dollar sign -->
-  <div class="treasure" id="treasure">$</div>
-
-  <div class="stress-bar"><div class="stress-fill" id="stressFill"></div></div>
-
-  <!-- Welcome message -->
-  <div class="welcome" id="welcome">
-    <div style="
-      font-family: 'Courier New', monospace;
-      font-size: 18px;
-      font-weight: bold;
-      color: #ff9900;
-      text-shadow: 2px 2px #000, 4px 4px #ff5500;
-      letter-spacing: 1px;
-      text-align: center;
-    ">
-      Let’s Play<br>Shayan’s Work Life
-    </div>
-    <button class="start-btn" onclick="startGame()">Start</button>
+<!-- HUD -->
+<div id="overlay">
+  <div>
+    Stress
+    <div id="stress"><div id="stressFill"></div></div>
   </div>
+  <div id="dollar">$0</div>
+</div>
 
-  <div class="summary" id="summary"></div>
+<canvas id="game"></canvas>
 
-  <!-- Sounds -->
-  <audio id="hitSound" src="sounds/hit.mp3"></audio>
-  <audio id="chaChing" src="sounds/chaching.mp3"></audio>
-  <audio id="bgMusic" src="sounds/bg-music.mp3" loop></audio>
+<!-- END -->
+<div id="endScreen" style="display:none">
+  <h2 id="endMessage"></h2>
+  <div id="revenue"></div>
+  <img src="images/rose.png" width="90">
+  <button onclick="restartGame()">Play Again</button>
 </div>
 
 <script>
-const game = document.getElementById("game");
-const hero = document.getElementById("hero");
-const stressFill = document.getElementById("stressFill");
-const welcome = document.getElementById("welcome");
-const summary = document.getElementById("summary");
-const treasure = document.getElementById("treasure");
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-let heroX=156, heroY=50, velocityY=0, isJumping=false;
-const gravity=0.8;
-const heroWidth=48, heroHeight=48;
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
-let stress=0, maxStress=10;
-let gameOver=false;
+/* GROUND */
+const groundOffset = 90;
+let groundY;
 
-const companies = [
-  {name:"EIKON7", color:"#ff0000", revenue:0},
-  {name:"PROPAKISTANI", color:"#00ff00", revenue:0},
-  {name:"HDIW PODCAST", color:"#ffff00", revenue:0},
-  {name:"TRADEMOR", color:"#8b4513", revenue:0},
-  {name:"FOURTHWALL", color:"#ff00ff", revenue:0}
+/* HERO */
+const heroImg = new Image();
+heroImg.src = "images/hero.png";
+
+/* GAME STATE */
+let hero, bars, stress, totalDollars, gameOver, started;
+let spawnTimer = 0;
+let spawnDelay = 120; // frames (~2 seconds)
+
+/* BUSINESSES */
+const businessesData = [
+  { name: "ProPakistani", color: "#00ffcc" },
+  { name: "Eikon7", color: "#ffcc00" },
+  { name: "FourthWallStudios", color: "#ff6699" },
+  { name: "HDIW Podcast", color: "#66ccff" },
+  { name: "Trademor", color: "#99ff66" }
 ];
 
-document.addEventListener("keydown", e=>{
-  if(gameOver) return;
-  if(e.key==="ArrowRight") heroX = Math.min(heroX+10, 360-heroWidth);
-  if(e.key==="ArrowLeft") heroX = Math.max(heroX-10, 0);
-  if(e.key===" " && !isJumping){ velocityY=15; isJumping=true; }
-});
+const barWidth = 120;
+const barHeight = 14;
 
-function startGame(){
-  welcome.style.display="none";
-  requestAnimationFrame(updateHero);
-  spawnLoop();
-  document.getElementById("bgMusic").play();
+/* INIT */
+function initGame() {
+  groundY = canvas.height - groundOffset;
+
+  hero = {
+    x: canvas.width / 2 - 20,
+    y: groundY - 40,
+    w: 40,
+    h: 40,
+    vx: 0,
+    vy: 0
+  };
+
+  bars = [];
+  stress = 0;
+  totalDollars = 0;
+  gameOver = false;
+  spawnTimer = 0;
+
+  businessesData.forEach(b => b.money = 0);
+
+  document.getElementById("stressFill").style.width = "0%";
+  document.getElementById("dollar").innerText = "$0";
 }
 
-function spawnLoop(){
-  if(gameOver) return;
-  const company = companies[Math.floor(Math.random()*companies.length)];
-  spawnBar(company);
-  setTimeout(spawnLoop, 1200);
+/* SPAWN BAR */
+function spawnBar() {
+  const business = businessesData[Math.floor(Math.random() * businessesData.length)];
+
+  bars.push({
+    x: Math.random() * (canvas.width - barWidth),
+    y: -30,
+    vy: 1.2,
+    angle: (Math.random() * 0.3) - 0.15,
+    business
+  });
 }
 
-function spawnBar(info){
-  const bar = document.createElement("div");
-  bar.className="bar";
-  bar.style.background = info.color;
-  bar.style.left = Math.random()*(360-140)+"px";
-  bar.style.top = "-12px";
-  bar.innerText = info.name;
-  game.appendChild(bar);
+/* UPDATE */
+function update() {
+  if (!started || gameOver) return;
 
-  let y=-12;
-  function moveBar(){
-    if(gameOver) return;
-    y+=4;
-    bar.style.top = y+"px";
+  /* HERO */
+  hero.vy += 0.6;
+  hero.x += hero.vx;
+  hero.y += hero.vy;
 
-    const heroRect = hero.getBoundingClientRect();
-    const barRect = bar.getBoundingClientRect();
-    const gameRect = game.getBoundingClientRect();
-
-    const heroTop = heroRect.top - gameRect.top;
-    const heroBottom = heroTop + heroHeight;
-    const heroLeft = heroRect.left - gameRect.left;
-    const heroRight = heroLeft + heroWidth;
-
-    const barTop = barRect.top - gameRect.top;
-    const barBottom = barTop + 12;
-    const barLeft = barRect.left - gameRect.left;
-    const barRight = barLeft + 140;
-
-    // collision
-    if(heroBottom >= barTop && heroTop <= barBottom && heroRight>barLeft && heroLeft<barRight){
-      info.revenue++;
-      stress++;
-      stressFill.style.width = (stress/maxStress*100)+"%";
-      document.getElementById("chaChing").play();
-
-      const treasureRect = treasure.getBoundingClientRect();
-      const dollar = document.createElement("div");
-      dollar.className="dollar";
-      dollar.style.left = (barLeft+50)+"px";
-      dollar.style.top = barTop+"px";
-      dollar.innerText="$";
-      game.appendChild(dollar);
-
-      const startX = barLeft+50;
-      const startY = barTop;
-      const endX = treasureRect.left - gameRect.left + 5;
-      const endY = treasureRect.top - gameRect.top + 5;
-      const duration = 600;
-      let startTime=null;
-      function animateDollar(timestamp){
-        if(!startTime) startTime=timestamp;
-        const progress = (timestamp-startTime)/duration;
-        if(progress<1){
-          dollar.style.left = startX + (endX-startX)*progress + "px";
-          dollar.style.top = startY + (endY-startY)*progress + "px";
-          requestAnimationFrame(animateDollar);
-        } else {
-          dollar.remove();
-        }
-      }
-      requestAnimationFrame(animateDollar);
-
-      bar.remove();
-      if(stress>=maxStress) endGame("Take a Rest!");
-      return;
-    }
-
-    if(y>640){
-      bar.remove();
-      endGame(null, info.name); // business dead
-      return;
-    }
-
-    requestAnimationFrame(moveBar);
+  if (hero.y + hero.h > groundY) {
+    hero.y = groundY - hero.h;
+    hero.vy = 0;
   }
-  requestAnimationFrame(moveBar);
-}
 
-// HERO PHYSICS
-function updateHero(){
-  if(gameOver) return;
-  velocityY -= gravity;
-  heroY += velocityY;
-  if(heroY<=50){ heroY=50; velocityY=0; isJumping=false; }
-  hero.style.left = heroX + "px";
-  hero.style.bottom = heroY + "px";
-  requestAnimationFrame(updateHero);
-}
+  if (hero.x < 0) hero.x = 0;
+  if (hero.x + hero.w > canvas.width)
+    hero.x = canvas.width - hero.w;
 
-// END GAME
-function endGame(msg, deadBusiness=null){
-  gameOver = true;
-  summary.style.display = "flex";
+  /* BAR SPAWN TIMER */
+  spawnTimer++;
+  if (spawnTimer > spawnDelay) {
+    spawnBar();
+    spawnTimer = 0;
+    spawnDelay = Math.max(70, spawnDelay - 3); // difficulty ramp
+  }
 
-  let revenueText = "";
-  companies.forEach(c => {
-    revenueText += `${c.name}: $${c.revenue} <br>`;
+  /* BARS */
+  bars.forEach((bar, index) => {
+    bar.y += bar.vy;
+
+    // Collision
+    if (
+      hero.x < bar.x + barWidth &&
+      hero.x + hero.w > bar.x &&
+      hero.y + hero.h > bar.y &&
+      hero.y + hero.h < bar.y + barHeight + 8 &&
+      hero.vy >= 0
+    ) {
+      hero.vy = -12;
+      bar.y -= 20;
+
+      bar.business.money++;
+      totalDollars++;
+      stress++;
+
+      document.getElementById("dollar").innerText = "$" + totalDollars;
+      document.getElementById("stressFill").style.width =
+        Math.min(stress * 10, 100) + "%";
+    }
+
+    // Bar fell = game over
+    if (bar.y > canvas.height) {
+      endGame(bar.business.name + " is dead");
+    }
   });
 
-  let displayMsg = msg ? msg : `${deadBusiness} is Dead!`;
-
-  summary.innerHTML = `
-    <div style="
-      font-family: 'Courier New', monospace;
-      font-size: 16px;
-      font-weight: bold;
-      color: #ff6600;
-      text-shadow: 2px 2px #000, 4px 4px #ff3300;
-      text-align: center;
-      margin-bottom: 10px;
-    ">
-      ${displayMsg}
-    </div>
-    <div style="
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: #fff;
-      text-align: center;
-      margin-bottom: 8px;
-    ">
-      Stress: ${stress}
-    </div>
-    <div style="
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: #fff;
-      text-align: center;
-      margin-bottom: 8px;
-    ">
-      Revenue Collected: <br> ${revenueText}
-    </div>
-    <div style="
-      font-family: 'Courier New', monospace;
-      font-size: 14px;
-      color: #ffcc00;
-      text-align: center;
-      margin-bottom: 10px;
-    ">
-      🌹
-    </div>
-    <button class="reply-btn" onclick="location.reload()">Play Again!</button>
-  `;
+  if (stress >= 10) {
+    endGame("Burnout! It’s time for rest!");
+  }
 }
+
+/* DRAW */
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!started) return;
+
+  /* HERO */
+  ctx.drawImage(heroImg, hero.x, hero.y, hero.w, hero.h);
+
+  /* BARS */
+  bars.forEach(bar => {
+    ctx.save();
+    ctx.translate(bar.x + barWidth / 2, bar.y + barHeight / 2);
+    ctx.rotate(bar.angle);
+
+    ctx.fillStyle = bar.business.color;
+    ctx.fillRect(-barWidth / 2, -barHeight / 2, barWidth, barHeight);
+
+    // Text
+    ctx.fillStyle = "#000";
+    ctx.font = "10px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(bar.business.name, 0, 4);
+
+    ctx.restore();
+  });
+}
+
+/* LOOP */
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+/* END GAME */
+function endGame(message) {
+  gameOver = true;
+  document.getElementById("endScreen").style.display = "flex";
+  document.getElementById("endMessage").innerText = message;
+
+  let html = `<h3>Total Revenue: $${totalDollars}</h3>`;
+  businessesData.forEach(b => {
+    html += `<p>${b.name}: $${b.money}</p>`;
+  });
+  document.getElementById("revenue").innerHTML = html;
+}
+
+/* RESTART */
+function restartGame() {
+  document.getElementById("endScreen").style.display = "none";
+  initGame();
+}
+
+/* TOUCH */
+let touchStartX = 0;
+
+canvas.addEventListener("touchstart", e => {
+  if (!started) return;
+  touchStartX = e.touches[0].clientX;
+  hero.vy = -12;
+});
+
+canvas.addEventListener("touchmove", e => {
+  if (!started) return;
+  hero.vx = (e.touches[0].clientX - touchStartX) * 0.05;
+});
+
+canvas.addEventListener("touchend", () => {
+  hero.vx = 0;
+});
+
+/* START */
+document.getElementById("startScreen").addEventListener("click", () => {
+  started = true;
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("overlay").style.display = "flex";
+  initGame();
+});
+
+loop();
 </script>
+
 </body>
 </html>
