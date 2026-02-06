@@ -25,8 +25,8 @@ body {
   position: relative;
   border: 6px solid yellow; /* full border */
   box-sizing: border-box;
-  width: 430px;  /* iPhone 14 width */
-  height: 932px; /* iPhone 14 height */
+  width: 350px;  /* smaller width */
+  height: 760px; /* smaller height */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,7 +56,7 @@ canvas {
 }
 
 #stress {
-  width: 120px;
+  width: 100px;
   height: 10px;
   border: 1px solid white;
 }
@@ -82,8 +82,8 @@ canvas {
 }
 
 #startButton {
-  padding: 15px 30px;
-  font-size: 28px;
+  padding: 12px 25px;
+  font-size: 24px;
   font-family: monospace;
   background: #ff0;
   border: none;
@@ -94,8 +94,8 @@ canvas {
 }
 
 #startScreen h2 {
-  font-size: 20px;
-  margin-top: 15px;
+  font-size: 18px;
+  margin-top: 10px;
   color: #0f0;
 }
 
@@ -117,11 +117,11 @@ canvas {
   flex-direction: column;
   z-index: 10;
 }
-#endScreen img { margin-top: 20px; max-width: 80px; height:auto; }
+#endScreen img { margin-top: 20px; max-width: 60px; height:auto; }
 #endScreen button {
   margin-top: 20px;
   padding: 10px 20px;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   border-radius: 6px;
   background: #ff0;
@@ -161,7 +161,7 @@ canvas {
 </div>
 
 <script>
-const VERSION = "v13";
+const VERSION = "v14";
 
 /* INLINE PING SOUND */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -180,8 +180,8 @@ function playPing(){
 /* CANVAS */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-canvas.width = 430;
-canvas.height = 932;
+canvas.width = 350;
+canvas.height = 760;
 
 /* HERO IMAGE */
 const heroImg = new Image();
@@ -310,7 +310,7 @@ function dramaticEnd(reason, businessName=null){
   // Main heading
   endMessage.innerText="Stress Alert!";
   endMessage.style.color="red";
-  endMessage.style.fontSize="32px";
+  endMessage.style.fontSize="28px";
 
   // Business death message
   businessDeadDiv.innerHTML = "";
