@@ -20,18 +20,15 @@ body {
 /* PIXELATED STYLE */
 * { image-rendering: pixelated; }
 
-/* CONTAINER FOR BORDER + GAME */
+/* CONTAINER WITHOUT BORDER */
 #gameContainer {
   position: relative;
-  border: 6px solid yellow; /* full border */
-  box-sizing: border-box;
-  width: 350px;  /* smaller width */
-  height: 760px; /* smaller height */
+  width: 350px;  
+  height: 760px; 
   display: flex;
   justify-content: center;
   align-items: center;
   background: black;
-  padding: 6px; /* space so canvas doesn't cover border */
 }
 
 /* CANVAS */
@@ -42,10 +39,10 @@ canvas {
   height: 100%;
 }
 
-/* HUD INSIDE BORDER */
+/* HUD INSIDE CANVAS */
 #overlay {
   position: absolute;
-  top: 10px;
+  top: 40px; /* moved down from 10px to 40px */
   left: 10px;
   right: 10px;
   display: flex;
@@ -138,9 +135,9 @@ canvas {
   <h2>Shayan's Work Life</h2>
 </div>
 
-<!-- GAME CONTAINER WITH BORDER -->
+<!-- GAME CONTAINER -->
 <div id="gameContainer">
-  <!-- HUD INSIDE BORDER -->
+  <!-- HUD -->
   <div id="overlay">
     <div>
       Stress
@@ -161,7 +158,7 @@ canvas {
 </div>
 
 <script>
-const VERSION = "v14";
+const VERSION = "v16";
 
 /* INLINE PING SOUND */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
