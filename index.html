@@ -1,35 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Shayan's Work Life</title>
 
 <style>
 body {
   margin: 0;
   overflow: hidden;
-  background: #111;
+  background: #000;
   font-family: monospace;
+  color: yellow;
 }
 
+/* CANVAS */
 canvas {
   display: block;
-  background: #1e1e1e;
+  background: #000;
 }
 
-/* SCREENS */
-#startScreen, #endScreen {
+/* START SCREEN - PAC-MAN STYLE */
+#startScreen {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.95);
-  color: white;
+  background: #000;
+  color: yellow;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   z-index: 10;
+}
+
+#startScreen h1 {
+  font-size: 60px;
+  font-weight: bold;
+  letter-spacing: 5px;
+  color: yellow;
+  text-shadow: 2px 2px #222;
+  margin-bottom: 50px;
+}
+
+#startButton {
+  padding: 15px 30px;
+  font-size: 24px;
+  font-family: monospace;
+  background: #ff0;
+  border: none;
+  border-radius: 10px;
+  color: black;
+  cursor: pointer;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
 }
 
 /* HUD */
@@ -57,21 +85,28 @@ canvas {
   background: red;
 }
 
-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-family: monospace;
+/* END SCREEN */
+#endScreen {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  z-index: 10;
 }
+#endScreen img { margin-top: 20px; }
 </style>
 </head>
-
 <body>
 
 <!-- START -->
 <div id="startScreen">
-  <h1>LET’S PLAY</h1>
-  <h2>Shayan’s Work Life</h2>
-  <p>Tap anywhere to start</p>
+  <h1>SHAYAN'S WORK LIFE</h1>
+  <button id="startButton">PRESS START</button>
 </div>
 
 <!-- HUD -->
@@ -89,11 +124,18 @@ button {
 <div id="endScreen" style="display:none">
   <h2 id="endMessage"></h2>
   <div id="revenue"></div>
-  <img src="images/rose.png" width="90">
+  <img id="roseImg" width="90">
   <button onclick="restartGame()">Play Again</button>
 </div>
 
 <script>
+/* CACHE VERSION */
+const VERSION = "v3";
+
+/* SOUNDS */
+const hitSound = new Audio("sounds/hit.wav");
+
+/* CANVAS */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
@@ -110,12 +152,18 @@ let groundY;
 
 /* HERO */
 const heroImg = new Image();
-heroImg.src = "images/hero.png";
+heroImg.src = "images/hero.png?" + VERSION;
+
+/* ROSE IMAGE */
+const roseImg = new Image();
+roseImg.src = "images/rose.png?" + VERSION;
+document.getElementById("roseImg").src = roseImg.src;
 
 /* GAME STATE */
 let hero, bars, stress, totalDollars, gameOver, started;
 let spawnTimer = 0;
-let spawnDelay = 120; // frames (~2 seconds)
+let spawnDelay = 120;
+let dollars = [];
 
 /* BUSINESSES */
 const businessesData = [
@@ -133,21 +181,13 @@ const barHeight = 14;
 function initGame() {
   groundY = canvas.height - groundOffset;
 
-  hero = {
-    x: canvas.width / 2 - 20,
-    y: groundY - 40,
-    w: 40,
-    h: 40,
-    vx: 0,
-    vy: 0
-  };
-
+  hero = { x: canvas.width / 2 - 20, y: groundY - 40, w: 40, h: 40, vx: 0, vy: 0 };
   bars = [];
   stress = 0;
   totalDollars = 0;
+  dollars = [];
   gameOver = false;
   spawnTimer = 0;
-
   businessesData.forEach(b => b.money = 0);
 
   document.getElementById("stressFill").style.width = "0%";
@@ -157,14 +197,7 @@ function initGame() {
 /* SPAWN BAR */
 function spawnBar() {
   const business = businessesData[Math.floor(Math.random() * businessesData.length)];
-
-  bars.push({
-    x: Math.random() * (canvas.width - barWidth),
-    y: -30,
-    vy: 1.2,
-    angle: (Math.random() * 0.3) - 0.15,
-    business
-  });
+  bars.push({ x: Math.random() * (canvas.width - barWidth), y: -30, vy: 1.2, angle: (Math.random()*0.3)-0.15, business });
 }
 
 /* UPDATE */
@@ -176,61 +209,67 @@ function update() {
   hero.x += hero.vx;
   hero.y += hero.vy;
 
-  if (hero.y + hero.h > groundY) {
-    hero.y = groundY - hero.h;
-    hero.vy = 0;
-  }
-
+  if (hero.y + hero.h > groundY) { hero.y = groundY - hero.h; hero.vy = 0; }
   if (hero.x < 0) hero.x = 0;
-  if (hero.x + hero.w > canvas.width)
-    hero.x = canvas.width - hero.w;
+  if (hero.x + hero.w > canvas.width) hero.x = canvas.width - hero.w;
 
-  /* BAR SPAWN TIMER */
+  /* SPAWN TIMER */
   spawnTimer++;
   if (spawnTimer > spawnDelay) {
     spawnBar();
     spawnTimer = 0;
-    spawnDelay = Math.max(70, spawnDelay - 3); // difficulty ramp
+    spawnDelay = Math.max(70, spawnDelay-2);
   }
 
   /* BARS */
-  bars.forEach((bar, index) => {
+  for (let i = bars.length-1; i>=0; i--) {
+    let bar = bars[i];
     bar.y += bar.vy;
 
-    // Collision
-    if (
-      hero.x < bar.x + barWidth &&
-      hero.x + hero.w > bar.x &&
-      hero.y + hero.h > bar.y &&
-      hero.y + hero.h < bar.y + barHeight + 8 &&
-      hero.vy >= 0
-    ) {
-      hero.vy = -12;
-      bar.y -= 20;
+    if (hero.x < bar.x + barWidth && hero.x + hero.w > bar.x &&
+        hero.y + hero.h > bar.y && hero.y < bar.y + barHeight &&
+        hero.vy >= 0) {
 
+      hero.vy = -12;
       bar.business.money++;
       totalDollars++;
       stress++;
 
       document.getElementById("dollar").innerText = "$" + totalDollars;
-      document.getElementById("stressFill").style.width =
-        Math.min(stress * 10, 100) + "%";
+      document.getElementById("stressFill").style.width = Math.min(stress*10,100)+"%";
+
+      // SPAWN FLOATING DOLLAR
+      dollars.push({ x: bar.x + barWidth/2, y: bar.y, vy: -2, alpha: 1 });
+
+      // PLAY HIT SOUND
+      hitSound.currentTime = 0;
+      hitSound.play();
+
+      // REMOVE BAR
+      bars.splice(i,1);
+      continue;
     }
 
-    // Bar fell = game over
     if (bar.y > canvas.height) {
       endGame(bar.business.name + " is dead");
     }
-  });
-
-  if (stress >= 10) {
-    endGame("Burnout! It’s time for rest!");
   }
+
+  /* UPDATE DOLLARS */
+  for (let j=dollars.length-1; j>=0; j--) {
+    let d = dollars[j];
+    d.y += d.vy;
+    d.alpha -= 0.03;
+    if (d.alpha <=0) dollars.splice(j,1);
+  }
+
+  if (stress >= 10) endGame("Burnout! It's time for rest!");
 }
 
 /* DRAW */
 function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
   if (!started) return;
 
   /* HERO */
@@ -239,71 +278,63 @@ function draw() {
   /* BARS */
   bars.forEach(bar => {
     ctx.save();
-    ctx.translate(bar.x + barWidth / 2, bar.y + barHeight / 2);
+    ctx.translate(bar.x + barWidth/2, bar.y + barHeight/2);
     ctx.rotate(bar.angle);
-
     ctx.fillStyle = bar.business.color;
-    ctx.fillRect(-barWidth / 2, -barHeight / 2, barWidth, barHeight);
-
-    // Text
+    ctx.fillRect(-barWidth/2, -barHeight/2, barWidth, barHeight);
     ctx.fillStyle = "#000";
     ctx.font = "10px monospace";
     ctx.textAlign = "center";
     ctx.fillText(bar.business.name, 0, 4);
-
     ctx.restore();
   });
+
+  /* DOLLARS */
+  ctx.font = "16px monospace";
+  ctx.fillStyle = "yellow";
+  ctx.textAlign = "center";
+  dollars.forEach(d => { ctx.globalAlpha = d.alpha; ctx.fillText("$", d.x, d.y); });
+  ctx.globalAlpha = 1;
 }
 
 /* LOOP */
-function loop() {
-  update();
-  draw();
-  requestAnimationFrame(loop);
-}
+function loop() { update(); draw(); requestAnimationFrame(loop); }
 
 /* END GAME */
-function endGame(message) {
+function endGame(msg) {
   gameOver = true;
   document.getElementById("endScreen").style.display = "flex";
-  document.getElementById("endMessage").innerText = message;
-
+  document.getElementById("endMessage").innerText = msg;
   let html = `<h3>Total Revenue: $${totalDollars}</h3>`;
-  businessesData.forEach(b => {
-    html += `<p>${b.name}: $${b.money}</p>`;
-  });
+  businessesData.forEach(b => html+= `<p>${b.name}: $${b.money}</p>`);
   document.getElementById("revenue").innerHTML = html;
 }
 
 /* RESTART */
 function restartGame() {
-  document.getElementById("endScreen").style.display = "none";
+  document.getElementById("endScreen").style.display="none";
   initGame();
 }
 
-/* TOUCH */
-let touchStartX = 0;
+/* MOBILE TOUCH */
+let touchStartX=0;
+canvas.addEventListener("touchstart",e=>{if(!started)return; touchStartX=e.touches[0].clientX; hero.vy=-12;});
+canvas.addEventListener("touchmove",e=>{if(!started)return; hero.vx=(e.touches[0].clientX-touchStartX)*0.05;});
+canvas.addEventListener("touchend",()=>{hero.vx=0;});
 
-canvas.addEventListener("touchstart", e => {
-  if (!started) return;
-  touchStartX = e.touches[0].clientX;
-  hero.vy = -12;
+/* KEYBOARD */
+document.addEventListener("keydown",e=>{if(!started||gameOver)return;
+if(e.key==="ArrowLeft")hero.vx=-5;
+if(e.key==="ArrowRight")hero.vx=5;
+if(e.key===" ")hero.vy=-12;
 });
+document.addEventListener("keyup",e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight")hero.vx=0;});
 
-canvas.addEventListener("touchmove", e => {
-  if (!started) return;
-  hero.vx = (e.touches[0].clientX - touchStartX) * 0.05;
-});
-
-canvas.addEventListener("touchend", () => {
-  hero.vx = 0;
-});
-
-/* START */
-document.getElementById("startScreen").addEventListener("click", () => {
-  started = true;
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("overlay").style.display = "flex";
+/* START BUTTON */
+document.getElementById("startButton").addEventListener("click",()=>{
+  started=true;
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("overlay").style.display="flex";
   initGame();
 });
 
